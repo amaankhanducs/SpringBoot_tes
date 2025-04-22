@@ -1,16 +1,20 @@
 package net.rest.journalApp.JournalEntryController.entity;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.stereotype.Component;
 
 import javax.management.ObjectName;
 import java.time.LocalDateTime;
 import java.util.Date;
+
+@Document(collection = "journal_entries")
 @Data
-@Document
-        (collection = "journal_entries")
+@NoArgsConstructor
+@Component
 public class JournalEntry {
 
 
