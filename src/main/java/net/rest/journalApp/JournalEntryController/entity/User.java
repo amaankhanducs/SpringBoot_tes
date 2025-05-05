@@ -102,4 +102,5 @@ public class User {
     // Defining a list of journal entries, mapped as a reference to another collection
     @DBRef
     private List<JournalEntry> journalEntries = new ArrayList<>();
+
 }

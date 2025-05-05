@@ -59,17 +59,4 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
         return authConfig.getAuthenticationManager();
     }
-
-    // Removed configureGlobal method that caused circular dependency
-
-//    @Bean
-//    public CorsConfigurationSource corsConfigurationSource() {
-//        CorsConfiguration configuration = new CorsConfiguration();
-//        configuration.setAllowedOrigins(Arrays.asList("*"));  // You should restrict this in production
-//        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
-//        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
-//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-//        source.registerCorsConfiguration("/**", configuration);
-//        return source;
-//    }
 }
