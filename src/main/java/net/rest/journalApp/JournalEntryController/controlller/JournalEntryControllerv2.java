@@ -10,10 +10,6 @@ import net.rest.journalApp.JournalEntryController.services.impl.JournalEntryServ
 import net.rest.journalApp.JournalEntryController.services.impl.UserServiceImpl;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -37,12 +33,7 @@ public class JournalEntryControllerv2 {
     private JournalEntryServiceImpl journalEntryService;
 
     @GetMapping()
-    public ResponseEntity<GenericResponse<?>> getAllJournalEntriesOfUser(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "date") String sortBy,
-            @RequestParam(defaultValue = "desc") String direction) {
-
+    public ResponseEntity<GenericResponse<?>> getAllJournalEntriesOfUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         final String userName = authentication.getName();
         User user = userService.findByUserName(userName);
@@ -50,16 +41,8 @@ public class JournalEntryControllerv2 {
             throw new ResourceNotFoundException("User not found with username: " + userName);
         }
 
-        // Create pagination request
-        Sort.Direction sortDirection = direction.equalsIgnoreCase("asc") ?
-                Sort.Direction.ASC : Sort.Direction.DESC;
-        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortBy));
-
-        // Get paginated entries
-        Page<JournalEntry> journalEntryPage = journalEntryService.getEntriesByUser(
-                userName, pageable);
-
-        if (journalEntryPage.isEmpty()) {
+        List<JournalEntry> all = user.getJournalEntries();
+        if (all == null || all.isEmpty()) {
             GenericResponse<String> response = new GenericResponse<>(
                     "error",
                     "No journal entries found",
@@ -69,7 +52,7 @@ public class JournalEntryControllerv2 {
         }
 
         // Create a clean response without timestamps
-        List<Map<String, Object>> cleanEntries = journalEntryPage.getContent().stream()
+        List<Map<String, Object>> cleanEntries = all.stream()
                 .map(entry -> {
                     Map<String, Object> entryMap = new HashMap<>();
                     entryMap.put("id", entry.getId().toString());
@@ -79,17 +62,10 @@ public class JournalEntryControllerv2 {
                 })
                 .toList();
 
-        // Add pagination info
-        Map<String, Object> responseData = new HashMap<>();
-        responseData.put("entries", cleanEntries);
-        responseData.put("currentPage", journalEntryPage.getNumber());
-        responseData.put("totalItems", journalEntryPage.getTotalElements());
-        responseData.put("totalPages", journalEntryPage.getTotalPages());
-
-        GenericResponse<Map<String, Object>> response = new GenericResponse<>(
+        GenericResponse<List<Map<String, Object>>> response = new GenericResponse<>(
                 "success",
                 "Journal entries retrieved successfully",
-                responseData
+                cleanEntries
         );
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -113,7 +89,7 @@ public class JournalEntryControllerv2 {
 
             journalEntryService.saveEntry(journalEntry, userName);
 
-
+            // Create a clean response without timestamp
             Map<String, Object> responseData = new HashMap<>();
             responseData.put("id", journalEntry.getId().toString());
             responseData.put("title", journalEntry.getTitle());

@@ -11,8 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -46,10 +44,6 @@ public class UserController {
                     // Convert ObjectId to String properly
                     userMap.put("id", user.getId() != null ? user.getId().toString() : null);
                     userMap.put("userName", user.getUserName());
-                    userMap.put("firstName", user.getFirstName());
-                    userMap.put("lastName", user.getLastName());
-                    userMap.put("email", user.getEmail());
-                    userMap.put("phoneNumber", user.getPhoneNumber());
                     userMap.put("role", user.getRole());
                     return userMap;
                 })
@@ -63,90 +57,6 @@ public class UserController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @GetMapping("/profile")
-    public ResponseEntity<GenericResponse<Map<String, Object>>> getUserProfile() {
-        // Get the authenticated username
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String userName = authentication.getName();
-
-        User user = userService.findByUserName(userName);
-        if (user == null) {
-            throw new ResourceNotFoundException("User not found with username: " + userName);
-        }
-
-        // Create user profile data excluding sensitive information
-        Map<String, Object> profileData = new HashMap<>();
-        profileData.put("userName", user.getUserName());
-        profileData.put("firstName", user.getFirstName());
-        profileData.put("lastName", user.getLastName());
-        profileData.put("email", user.getEmail());
-        profileData.put("phoneNumber", user.getPhoneNumber());
-        profileData.put("addressLine1", user.getAddressLine1());
-        profileData.put("addressLine2", user.getAddressLine2());
-        profileData.put("city", user.getCity());
-        profileData.put("state", user.getState());
-        profileData.put("country", user.getCountry());
-        profileData.put("zipCode", user.getZipCode());
-        profileData.put("role", user.getRole());
-
-        GenericResponse<Map<String, Object>> response = new GenericResponse<>(
-                "success",
-                "User profile retrieved successfully",
-                profileData
-        );
-
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
-    @PutMapping("/profile")
-    public ResponseEntity<GenericResponse<Map<String, Object>>> updateUserProfile(
-            @Valid @RequestBody UserDTO userDTO) {
-        // Get the authenticated username
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String userName = authentication.getName();
-
-        User user = userService.findByUserName(userName);
-        if (user == null) {
-            throw new ResourceNotFoundException("User not found with username: " + userName);
-        }
-
-        // Update user with new information
-        if (userDTO.getFirstName() != null) user.setFirstName(userDTO.getFirstName());
-        if (userDTO.getLastName() != null) user.setLastName(userDTO.getLastName());
-        if (userDTO.getEmail() != null) user.setEmail(userDTO.getEmail());
-        if (userDTO.getPhoneNumber() != null) user.setPhoneNumber(userDTO.getPhoneNumber());
-        if (userDTO.getAddressLine1() != null) user.setAddressLine1(userDTO.getAddressLine1());
-        if (userDTO.getAddressLine2() != null) user.setAddressLine2(userDTO.getAddressLine2());
-        if (userDTO.getCity() != null) user.setCity(userDTO.getCity());
-        if (userDTO.getState() != null) user.setState(userDTO.getState());
-        if (userDTO.getCountry() != null) user.setCountry(userDTO.getCountry());
-        if (userDTO.getZipCode() != null) user.setZipCode(userDTO.getZipCode());
-        if (userDTO.getPassword() != null) user.setPassword(userDTO.getPassword());
-
-        userService.saveEntry(user);
-
-        // Prepare response with updated profile
-        Map<String, Object> responseData = new HashMap<>();
-        responseData.put("userName", user.getUserName());
-        responseData.put("firstName", user.getFirstName());
-        responseData.put("lastName", user.getLastName());
-        responseData.put("email", user.getEmail());
-        responseData.put("phoneNumber", user.getPhoneNumber());
-        responseData.put("addressLine1", user.getAddressLine1());
-        responseData.put("addressLine2", user.getAddressLine2());
-        responseData.put("city", user.getCity());
-        responseData.put("state", user.getState());
-        responseData.put("country", user.getCountry());
-        responseData.put("zipCode", user.getZipCode());
-
-        GenericResponse<Map<String, Object>> response = new GenericResponse<>(
-                "success",
-                "User profile updated successfully",
-                responseData
-        );
-
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
 
     @PutMapping("/roles")
     @PreAuthorize("hasRole('ADMIN')")  // Only ADMIN can access this endpoint

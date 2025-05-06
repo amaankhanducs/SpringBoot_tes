@@ -50,10 +50,6 @@ public class UserServiceImpl {
         return userRepository.findByUserName(userName);
     }
 
-    public User findByEmail(String email) {
-        return userRepository.findByEmail(email);
-    }
-
     // Method to update user without changing the password
     public void updateUserDetails(User user, String userName) {
         User existingUser = findByUserName(userName);
@@ -63,19 +59,6 @@ public class UserServiceImpl {
             if (user.getPassword() != null && !user.getPassword().isEmpty()) {
                 existingUser.setPassword(passwordEncoder.encode(user.getPassword()));
             }
-
-            // Update the new fields
-            if (user.getFirstName() != null) existingUser.setFirstName(user.getFirstName());
-            if (user.getLastName() != null) existingUser.setLastName(user.getLastName());
-            if (user.getEmail() != null) existingUser.setEmail(user.getEmail());
-            if (user.getPhoneNumber() != null) existingUser.setPhoneNumber(user.getPhoneNumber());
-            if (user.getAddressLine1() != null) existingUser.setAddressLine1(user.getAddressLine1());
-            if (user.getAddressLine2() != null) existingUser.setAddressLine2(user.getAddressLine2());
-            if (user.getCity() != null) existingUser.setCity(user.getCity());
-            if (user.getState() != null) existingUser.setState(user.getState());
-            if (user.getCountry() != null) existingUser.setCountry(user.getCountry());
-            if (user.getZipCode() != null) existingUser.setZipCode(user.getZipCode());
-
             userRepository.save(existingUser);
         }
     }

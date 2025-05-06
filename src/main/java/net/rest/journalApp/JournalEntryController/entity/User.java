@@ -30,29 +30,17 @@ public class User {
     @NonNull
     private String password;
 
-    // Added new fields
-    private String firstName;
 
-    private String lastName;
-
-    @Indexed(unique = true)
-    private String email;
-
-    private String phoneNumber;
-
-    // Optional address fields
-    private String addressLine1;
-    private String addressLine2;
-    private String city;
-    private String state;
-    private String country;
-    private String zipCode;
 
     // Defining a list of journal entries, mapped as a reference to another collection
     @DBRef
     private List<JournalEntry> journalEntries = new ArrayList<>();
-
     // Added for role-based authorization
     @NonNull
-    private List<String> role = List.of("ROLE_USER");
+    private List<String> role =  List.of("ROLE_USER");
+
+
+
+
 }
+
